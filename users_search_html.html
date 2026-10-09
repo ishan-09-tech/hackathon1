@@ -150,14 +150,14 @@
   <div class="bg" aria-hidden="true"><div class="orb o1"></div><div class="orb o2"></div></div>
 
   <header>
-    <a class="brand" href="index.html">
+    <a class="brand" href="homepage_final_html.html">
       <span class="logo-wrap"><img src="iit-mandi-logo.png" alt="IIT Mandi logo"></span>
       <span class="brand-name">chatbot</span>
     </a>
     <nav style="display:flex;gap:10px;flex-wrap:wrap;">
       <a class="btn" href="chat_html.html">Chat</a>
       <a class="btn" href="login_html.html">Sign in</a>
-      <a class="btn" href="index.html">Back to home</a>
+      <a class="btn" href="homepage_final_html.html">Back to home</a>
     </nav>
   </header>
 
@@ -230,3 +230,11 @@
   </script>
 </body>
 </html>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabase = window.supabase.createClient(
+    "https://vtfajpunodcffkbcvrhv.supabase.co",
+    "sb_publishable_JeFf-zkHTUqPqXjTsvJPWA_zehRYKiB"
+  );
+</script>
