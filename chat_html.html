@@ -484,7 +484,7 @@
       </div>
       <button class="gbtn" type="submit">Sign in</button>
       <button class="gbtn ghost" type="button" id="demoBtn">Try demo mode</button>
-      <p class="alt">New here? <a href="register_final_html.html">Create an account</a> &middot; <a href="login_html.html">Full sign-in page</a> &middot; <a href="index.html">Home</a></p>
+      <p class="alt">New here? <a href="register_final_html.html">Create an account</a> &middot; <a href="login_html.html">Full sign-in page</a> &middot; <a href="homepage_final_html.html">Home</a></p>
     </form>
   </div>
 
@@ -516,7 +516,7 @@
       <div class="convs" id="convs" role="list"></div>
 
       <div class="side-foot">
-        <a href="index.html">Home</a>
+        <a href="homepage_final_html.html">Home</a>
         <a href="users_search_html.html">Registered users</a>
       </div>
     </aside>
@@ -1475,7 +1475,7 @@
     $('signOut').addEventListener('click', () => {
       const p = load(KEYS.presence, {}); delete p[me.roll]; save(KEYS.presence, p);
       clearSession();
-      location.href = 'index.html';
+      location.href = 'homepage_final_html.html';
     });
     searchInput.addEventListener('input', renderList);
 
@@ -1548,3 +1548,11 @@
   </script>
 </body>
 </html>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabase = window.supabase.createClient(
+    "https://vtfajpunodcffkbcvrhv.supabase.co",
+    "sb_publishable_JeFf-zkHTUqPqXjTsvJPWA_zehRYKiB"
+  );
+</script>
