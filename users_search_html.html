@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registered users</title>
+  <style>
+    :root {
+      --bg: #070b14;
+      --card: rgba(18, 26, 43, 0.7);
+      --ink: #eaf0ff;
+      --muted: #8d9bb5;
+      --line: rgba(120, 150, 220, 0.2);
+      --accent: #5b8cff;
+      --accent-2: #9b6bff;
+      --accent-glow: rgba(91, 140, 255, 0.45);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { color-scheme: dark; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+      background: var(--bg); color: var(--ink);
+      font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+      overflow-x: hidden;
+    }
+
+    .bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .bg::before {
+      content: ""; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(120,150,220,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120,150,220,0.06) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse at center, #000 20%, transparent 75%);
+      -webkit-mask-image: radial-gradient(ellipse at center, #000 20%, transparent 75%);
+      animation: gridMove 24s linear infinite;
+    }
+    .orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.45; will-change: transform; }
+    .o1 { width: 420px; height: 420px; background: #2f5bff; top: -120px; left: -100px; animation: drift1 18s ease-in-out infinite alternate; }
+    .o2 { width: 380px; height: 380px; background: #8a4dff; bottom: -140px; right: -80px; animation: drift2 22s ease-in-out infinite alternate; }
+    @keyframes gridMove { to { background-position: 48px 48px; } }
+    @keyframes drift1 { to { transform: translate(180px, 120px) scale(1.15); } }
+    @keyframes drift2 { to { transform: translate(-200px, -100px) scale(1.2); } }
+
+    header {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 14px 28px;
+      background: var(--card);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+      animation: slideDown 0.8s var(--ease) both;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+    .logo-wrap {
+      display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 0 0 1px var(--line), 0 6px 20px rgba(0,0,0,0.4);
+      transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease);
+    }
+    .brand:hover .logo-wrap { transform: rotate(-6deg) scale(1.08); box-shadow: 0 0 24px var(--accent-glow); }
+    .brand img { height: 38px; width: auto; display: block; }
+    .brand-name {
+      font-size: 1.4rem; font-weight: 700; letter-spacing: 0.02em;
+      background: linear-gradient(90deg, #fff, #a9c1ff);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .btn {
+      position: relative; overflow: hidden;
+      padding: 9px 18px; border-radius: 10px; font-size: 0.95rem; font-weight: 600;
+      text-decoration: none; border: 1px solid var(--line); color: var(--ink);
+      background: rgba(255,255,255,0.04);
+      transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), border-color 0.35s, background 0.35s;
+    }
+    .btn::after {
+      content: ""; position: absolute; top: 0; left: -120%; width: 60%; height: 100%;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,0.25), transparent);
+      transform: skewX(-20deg); transition: left 0.7s var(--ease);
+    }
+    .btn:hover { transform: translateY(-3px); border-color: var(--accent); background: rgba(91,140,255,0.12); box-shadow: 0 8px 24px rgba(91,140,255,0.25); }
+    .btn:hover::after { left: 140%; }
+    .btn:focus-visible { outline: 3px solid rgba(91,140,255,0.55); outline-offset: 2px; }
+
+    main { position: relative; z-index: 1; flex: 1; width: 100%; max-width: 640px; margin: 0 auto; padding: 36px 24px; }
+    h1 {
+      margin: 0 0 16px; font-size: 1.7rem;
+      background: linear-gradient(110deg, #fff 30%, #9db8ff);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      animation: riseIn 0.8s var(--ease) 0.1s both;
+    }
+    .card {
+      background: var(--card);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--line); border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+      overflow: hidden;
+      animation: riseIn 0.9s var(--ease) 0.35s both;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 13px 18px; text-align: left; font-size: 0.95rem; }
+    th { background: rgba(91,140,255,0.08); color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); letter-spacing: 0.03em; }
+    td { border-bottom: 1px solid var(--line); }
+    tr:last-child td { border-bottom: 0; }
+    tbody tr { opacity: 0; animation: rowIn 0.55s var(--ease) forwards; transition: background 0.3s; }
+    tbody tr:hover { background: rgba(91,140,255,0.1); }
+    tbody tr:hover td:first-child { color: #fff; }
+    tbody td:first-child { transition: transform 0.35s var(--ease); }
+    tbody tr:hover td:first-child { transform: translateX(6px); }
+
+    .search { margin-bottom: 16px; animation: riseIn 0.8s var(--ease) 0.2s both; }
+    .search label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.92rem; transition: color 0.3s; }
+    .search:focus-within label { color: var(--accent); }
+    .search input {
+      width: 100%; padding: 12px 14px; font-size: 1rem;
+      border: 1px solid var(--line); border-radius: 10px;
+      background: rgba(255,255,255,0.04); color: var(--ink);
+      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s, transform 0.3s var(--ease);
+    }
+    .search input::placeholder { color: #5a6882; }
+    .search input:focus {
+      outline: none; border-color: var(--accent); background: rgba(91,140,255,0.08);
+      box-shadow: 0 0 0 4px rgba(91,140,255,0.18), 0 0 20px rgba(91,140,255,0.2);
+      transform: translateY(-1px);
+    }
+    .result-note { margin: 0 0 12px; font-size: 0.9rem; color: var(--muted); min-height: 1.2em; }
+    .empty { padding: 28px 16px; text-align: center; color: var(--muted); animation: fadeIn 0.5s ease; }
+    .empty a { color: var(--accent); font-weight: 600; text-decoration: none; }
+    .empty a:hover { text-decoration: underline; }
+
+    @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes riseIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+    @keyframes rowIn { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    @media (max-width: 520px) {
+      header { padding: 12px 16px; }
+      .brand-name { font-size: 1.15rem; }
+      .logo-wrap { width: 44px; height: 44px; }
+      .brand img { height: 32px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+      tbody tr, header, .card, h1, .search { opacity: 1 !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg" aria-hidden="true"><div class="orb o1"></div><div class="orb o2"></div></div>
+
+  <header>
+    <a class="brand" href="index.html">
+      <span class="logo-wrap"><img src="iit-mandi-logo.png" alt="IIT Mandi logo"></span>
+      <span class="brand-name">chatbot</span>
+    </a>
+    <nav style="display:flex;gap:10px;flex-wrap:wrap;">
+      <a class="btn" href="chat_html.html">Chat</a>
+      <a class="btn" href="login_html.html">Sign in</a>
+      <a class="btn" href="index.html">Back to home</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Registered users (<span id="userCount">0</span>)</h1>
+
+    <div class="search">
+      <label for="searchInput">Search by name or roll number</label>
+      <input type="search" id="searchInput" placeholder="e.g. Aman or B23001" autocomplete="off">
+    </div>
+    <p class="result-note" id="resultNote" aria-live="polite"></p>
+
+    <div class="card">
+      <table id="usersTable" hidden>
+        <thead>
+          <tr><th>Name</th><th>Roll number</th></tr>
+        </thead>
+        <tbody id="usersBody"></tbody>
+      </table>
+      <p class="empty" id="usersEmpty">No one has registered yet. <a href="register_final_html.html">Create an account</a></p>
+    </div>
+  </main>
+
+  <script>
+    let users = [];
+    try { users = JSON.parse(localStorage.getItem('users')) || []; } catch (err) {}
+
+    const searchInput = document.getElementById('searchInput');
+    const table = document.getElementById('usersTable');
+    const body = document.getElementById('usersBody');
+    const empty = document.getElementById('usersEmpty');
+    const note = document.getElementById('resultNote');
+
+    document.getElementById('userCount').textContent = users.length;
+
+    function render(query) {
+      const q = query.trim().toLowerCase();
+      const matches = users.filter(u =>
+        u.name.toLowerCase().includes(q) || u.roll.toLowerCase().includes(q)
+      );
+
+      body.replaceChildren();
+      matches.forEach((u, i) => {
+        const tr = document.createElement('tr');
+        tr.style.animationDelay = Math.min(i * 45, 600) + 'ms';   // staggered row entrance
+        const nameCell = document.createElement('td');
+        const rollCell = document.createElement('td');
+        nameCell.textContent = u.name;   // textContent keeps user input safe from HTML injection
+        rollCell.textContent = u.roll;
+        tr.append(nameCell, rollCell);
+        body.appendChild(tr);
+      });
+
+      table.hidden = matches.length === 0;
+      empty.hidden = matches.length > 0;
+
+      if (users.length === 0) {
+        empty.innerHTML = 'No one has registered yet. <a href="register_final_html.html">Create an account</a>';
+        note.textContent = '';
+      } else if (matches.length === 0) {
+        empty.textContent = 'No user found for "' + query.trim() + '". Check the spelling or try a different roll number.';
+        note.textContent = '';
+      } else {
+        note.textContent = q ? 'Showing ' + matches.length + ' of ' + users.length + ' users' : '';
+      }
+    }
+
+    searchInput.addEventListener('input', () => render(searchInput.value));
+    render('');
+  </script>
+</body>
+</html>

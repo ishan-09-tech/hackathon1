@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>chatbot</title>
+  <style>
+    :root {
+      --bg: #070b14;
+      --card: rgba(18, 26, 43, 0.65);
+      --ink: #eaf0ff;
+      --muted: #8d9bb5;
+      --line: rgba(120, 150, 220, 0.18);
+      --accent: #5b8cff;
+      --accent-2: #9b6bff;
+      --accent-glow: rgba(91, 140, 255, 0.45);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    * { box-sizing: border-box; }
+    html { color-scheme: dark; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ---------- Animated background ---------- */
+    .bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .bg::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(120,150,220,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120,150,220,0.06) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse at center, #000 20%, transparent 75%);
+      -webkit-mask-image: radial-gradient(ellipse at center, #000 20%, transparent 75%);
+      animation: gridMove 24s linear infinite;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.55;
+      will-change: transform;
+    }
+    .orb.o1 { width: 460px; height: 460px; background: #2f5bff; top: -120px; left: -100px; animation: drift1 18s ease-in-out infinite alternate; }
+    .orb.o2 { width: 420px; height: 420px; background: #8a4dff; bottom: -140px; right: -80px; animation: drift2 22s ease-in-out infinite alternate; }
+    .orb.o3 { width: 300px; height: 300px; background: #00c2ff; top: 45%; left: 55%; opacity: 0.25; animation: drift3 26s ease-in-out infinite alternate; }
+
+    @keyframes gridMove { to { background-position: 48px 48px; } }
+    @keyframes drift1 { to { transform: translate(180px, 120px) scale(1.15); } }
+    @keyframes drift2 { to { transform: translate(-200px, -100px) scale(1.2); } }
+    @keyframes drift3 { to { transform: translate(-160px, 80px) scale(0.85); } }
+
+    /* ---------- Header ---------- */
+    header {
+      position: sticky; top: 0; z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 28px;
+      background: var(--card);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+      animation: slideDown 0.8s var(--ease) both;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand .logo-wrap {
+      display: grid; place-items: center;
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 0 0 1px var(--line), 0 6px 20px rgba(0,0,0,0.4);
+      transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease);
+    }
+    .brand:hover .logo-wrap { transform: rotate(-6deg) scale(1.08); box-shadow: 0 0 24px var(--accent-glow); }
+    .brand img { height: 38px; width: auto; display: block; }
+    .brand-name {
+      font-size: 1.4rem; font-weight: 700; letter-spacing: 0.02em;
+      background: linear-gradient(90deg, #fff, #a9c1ff);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    nav { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+      position: relative;
+      overflow: hidden;
+      padding: 9px 18px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: rgba(255,255,255,0.04);
+      transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease),
+                  border-color 0.35s, background 0.35s;
+    }
+    .btn::after { /* shine sweep */
+      content: "";
+      position: absolute; top: 0; left: -120%;
+      width: 60%; height: 100%;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,0.25), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.7s var(--ease);
+    }
+    .btn:hover { transform: translateY(-3px); border-color: var(--accent); background: rgba(91,140,255,0.12); box-shadow: 0 8px 24px rgba(91,140,255,0.25); }
+    .btn:hover::after { left: 140%; }
+    .btn:active { transform: translateY(-1px) scale(0.97); }
+    .btn.primary {
+      border-color: transparent;
+      color: #fff;
+      background: linear-gradient(120deg, var(--accent), var(--accent-2));
+      background-size: 160% 160%;
+      box-shadow: 0 6px 22px var(--accent-glow);
+      animation: gradShift 6s ease infinite;
+    }
+    .btn.primary:hover { box-shadow: 0 10px 34px var(--accent-glow); }
+    .btn:focus-visible { outline: 3px solid rgba(91, 140, 255, 0.55); outline-offset: 2px; }
+    @keyframes gradShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+    /* ---------- Hero ---------- */
+    main {
+      position: relative; z-index: 1;
+      flex: 1;
+      display: grid;
+      place-items: center;
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .hero { max-width: 600px; position: relative; }
+    .hero > * { opacity: 0; animation: riseIn 0.9s var(--ease) forwards; }
+    .hero .logo-ring { animation-delay: 0.15s; }
+    .hero h1        { animation-delay: 0.35s; }
+    .hero p         { animation-delay: 0.5s; }
+    .hero .actions  { animation-delay: 0.65s; }
+
+    .logo-ring {
+      position: relative;
+      display: inline-grid; place-items: center;
+      width: 168px; height: 168px;
+      margin-bottom: 26px;
+      border-radius: 50%;
+    }
+    .logo-ring::before, .logo-ring::after {
+      content: ""; position: absolute; inset: 0; border-radius: 50%;
+    }
+    .logo-ring::before { /* spinning gradient ring */
+      background: conic-gradient(from 0deg, var(--accent), var(--accent-2), #00c2ff, var(--accent));
+      animation: spin 8s linear infinite;
+      filter: blur(1px);
+    }
+    .logo-ring::after { /* pulse glow */
+      box-shadow: 0 0 60px var(--accent-glow);
+      animation: pulse 3.2s ease-in-out infinite;
+    }
+    .logo-inner {
+      position: relative; z-index: 1;
+      display: grid; place-items: center;
+      width: 152px; height: 152px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.95);
+      animation: float 5s ease-in-out infinite;
+    }
+    .logo-inner img { height: 110px; width: auto; }
+
+    .hero h1 {
+      margin: 0 0 14px;
+      font-size: clamp(2.6rem, 8vw, 4rem);
+      letter-spacing: 0.01em;
+      background: linear-gradient(110deg, #ffffff 20%, #8fb0ff 50%, #c3a3ff 80%);
+      background-size: 200% auto;
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      animation: riseIn 0.9s var(--ease) 0.35s forwards, shimmer 6s linear 1.3s infinite;
+    }
+    .hero p { margin: 0 auto 30px; max-width: 46ch; color: var(--muted); font-size: 1.05rem; line-height: 1.6; }
+    .hero .actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .hero .btn { padding: 13px 28px; font-size: 1rem; }
+
+    /* floating chat bubbles */
+    .bubble {
+      position: absolute;
+      padding: 8px 14px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      color: var(--ink);
+      background: var(--card);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0 !important;
+      animation: bubbleFloat 7s ease-in-out infinite !important;
+      white-space: nowrap;
+    }
+    .bubble.b1 { top: 6%;  left: -150px; animation-delay: 1.2s !important; }
+    .bubble.b2 { top: 38%; right: -170px; animation-delay: 3s !important; }
+    .bubble.b3 { bottom: 4%; left: -120px; animation-delay: 5s !important; }
+    @media (max-width: 1000px) { .bubble { display: none; } }
+
+    footer {
+      position: relative; z-index: 1;
+      padding: 16px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      animation: fadeIn 1.4s ease 0.9s both;
+    }
+
+    /* ---------- Keyframes ---------- */
+    @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes riseIn { from { opacity: 0; transform: translateY(32px) scale(0.97); filter: blur(6px); } to { opacity: 1; transform: none; filter: blur(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%,100% { opacity: 0.45; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @keyframes shimmer { to { background-position: 200% center; } }
+    @keyframes bubbleFloat {
+      0%   { opacity: 0; transform: translateY(20px) scale(0.9); }
+      15%  { opacity: 0.9; transform: translateY(0) scale(1); }
+      85%  { opacity: 0.9; transform: translateY(-14px) scale(1); }
+      100% { opacity: 0; transform: translateY(-30px) scale(0.95); }
+    }
+
+    @media (max-width: 520px) {
+      header { padding: 12px 16px; }
+      .brand-name { font-size: 1.15rem; }
+      .brand .logo-wrap { width: 44px; height: 44px; }
+      .brand img { height: 32px; }
+      .logo-ring { width: 140px; height: 140px; }
+      .logo-inner { width: 126px; height: 126px; }
+      .logo-inner img { height: 90px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+      .hero > *, header, footer { opacity: 1 !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg" aria-hidden="true">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+  </div>
+
+  <header>
+    <div class="brand">
+      <!-- Put the logo file in the same folder and name it iit-mandi-logo.png -->
+      <span class="logo-wrap"><img src="iit-mandi-logo.png" alt="IIT Mandi logo"></span>
+      <span class="brand-name">chatbot</span>
+    </div>
+    <nav>
+      <a class="btn" href="users_search_html.html">Registered users</a>
+      <a class="btn" href="chat_html.html">Chat</a>
+      <a class="btn" href="login_html.html" id="navSignIn">Sign in</a>
+      <a class="btn primary" href="register_final_html.html">Register</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="bubble b1" aria-hidden="true">Hey, anyone in the library? 👋</span>
+      <span class="bubble b2" aria-hidden="true">Hostel mess menu today?</span>
+      <span class="bubble b3" aria-hidden="true">Study group at 8 pm 📚</span>
+
+      <div class="logo-ring">
+        <div class="logo-inner">
+          <img src="iit-mandi-logo.png" alt="IIT Mandi logo">
+        </div>
+      </div>
+      <h1>chatbot</h1>
+      <p>Chat with your campus community at IIT Mandi. Sign in with your roll number to get started.</p>
+      <div class="actions">
+        <a class="btn primary" href="login_html.html" id="heroSignIn">Sign in</a>
+        <a class="btn" href="register_final_html.html">Create an account</a>
+        <a class="btn" href="users_search_html.html">Registered users</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>Indian Institute of Technology Mandi</footer>
+
+  <script>
+    // If someone is already signed in, the main button goes straight to the chat.
+    (function () {
+      let user = null;
+      for (const st of [sessionStorage, localStorage]) {
+        try { const v = JSON.parse(st.getItem('currentUser')); if (v && v.roll) { user = v; break; } } catch (e) {}
+      }
+      if (!user) return;
+      const hero = document.getElementById('heroSignIn');
+      const nav = document.getElementById('navSignIn');
+      hero.href = 'chat_html.html'; hero.textContent = 'Open chat';
+      nav.href = 'chat_html.html'; nav.textContent = 'Signed in as ' + user.name.split(' ')[0];
+    })();
+  </script>
+</body>
+</html>
