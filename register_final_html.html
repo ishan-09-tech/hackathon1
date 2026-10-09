@@ -161,7 +161,7 @@
       <button type="submit" class="submit">Register</button>
       <p class="success" id="success" hidden>Registration successful!</p>
     </form>
-    <p class="sub" style="margin:20px 0 0;text-align:center;">Already registered? <a href="login_html.html" style="color:var(--accent);font-weight:600;text-decoration:none;">Sign in</a> &middot; <a href="index.html" style="color:var(--accent);font-weight:600;text-decoration:none;">Home</a></p>
+    <p class="sub" style="margin:20px 0 0;text-align:center;">Already registered? <a href="login_html.html" style="color:var(--accent);font-weight:600;text-decoration:none;">Sign in</a> &middot; <a href="homepage_final_html.html" style="color:var(--accent);font-weight:600;text-decoration:none;">Home</a></p>
   </main>
 
   <script>
@@ -232,3 +232,11 @@
   </script>
 </body>
 </html>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabase = window.supabase.createClient(
+    "https://vtfajpunodcffkbcvrhv.supabase.co",
+    "sb_publishable_JeFf-zkHTUqPqXjTsvJPWA_zehRYKiB"
+  );
+</script>
